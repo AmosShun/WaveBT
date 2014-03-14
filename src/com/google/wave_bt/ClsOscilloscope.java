@@ -282,9 +282,9 @@ public class ClsOscilloscope {
     public OutputStream outStream = null;
     private FileLogger exgLogger = new FileLogger("EXG_DATA");
     private FileLogger motionLogger = new FileLogger("MOTION_DATA");
-    private FIR fir = new FIR();
-    private QRS qrs = new QRS();
+
     private Derivative derivative = new Derivative();
+    private Filter filter = new Filter();
     /*
     int send_over_socket = 0;
     Socket client = null;
@@ -1174,9 +1174,10 @@ public class ClsOscilloscope {
 				data_pool[i] = (int) ((data_buf[6+i*2] & 0xff) | ((data_buf[6+i*2+1] & 0xff) << 8));
 			}
 			
-			//data_pool = fir.highpass(data_pool);
-			//qrs.find_r(data_pool);
+			//差分法寻找QRS波群
 			derivative.process(data_pool);
+			//高通滤波消除基线漂移
+			data_pool = filter.highpass(data_pool);
 			
 			if (prev_sample_per_sec != sample_per_sec) {
 				/* 
