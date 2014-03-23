@@ -1214,6 +1214,8 @@ public class ClsOscilloscope {
 	/**
 	 * 负责绘制inBuf中的数据
 	 */
+	protected boolean PAUSE = false; //屏幕冻结
+	protected int[] paint_buffer_pause = null;
 	class DrawThread extends Thread {
 		private SurfaceView sfv;// 画板
 		private Paint mPaint;// 画笔
@@ -1247,7 +1249,15 @@ public class ClsOscilloscope {
 	        		//Log.i("EXG Wave", "get_show_buffer returned error");
 	        	}
 	        	//画在画布正中间
-	        	
+	        	/*判断是否冻结*/
+	        	if(PAUSE == true && paint_buffer_pause == null){
+	        		paint_buffer_pause = new int[paint_buffer.length];
+	        		System.arraycopy(paint_buffer, 0, paint_buffer_pause, 0, paint_buffer.length);
+	        		//保存指定波形段
+					//save(paint_buffer_pause);
+	        	}
+	        	else if(PAUSE == false)
+	        		paint_buffer_pause = null;	        	
 	        	SimpleDraw(paint_buffer);
 	        }  	          
 	    }; 
@@ -1281,23 +1291,119 @@ public class ClsOscilloscope {
 			//Log.i("EXG Wave", "create "+sfv.getWidth()+" X "+sfv.getHeight());
 			int y;
 			int oldX = 0, oldY = 0;
-			for (int i = 0; i < buffer.length; i++) {// 有多少画多少
-				int x = i;
-				if ((buffer[i]/* + total_y/2*/) < start_y) {
-					buffer[i] = start_y;
-				} else if (buffer[i] > (start_y+total_y)) {
-					buffer[i] = (start_y+total_y);
-				}
-				y = ((buffer[i] - start_y) * max_y) / total_y;
-				y = max_y - y /*- max_y/2*/;
-				if (oldX == 0) {
+			if(!PAUSE){
+				for (int i = 0; i < buffer.length; i++) {// 有多少画多少
+					int x = i;
+					if ((buffer[i]/* + total_y/2*/) < start_y) {
+						buffer[i] = start_y;
+					} else if (buffer[i] > (start_y+total_y)) {
+						buffer[i] = (start_y+total_y);
+					}
+					y = ((buffer[i] - start_y) * max_y) / total_y;
+					y = max_y - y /*- max_y/2*/;
+					if (oldX == 0) {
+						oldY = y;
+					}
+					canvas.drawLine(oldX, oldY, x, y, mPaint);
+					oldX = x;
 					oldY = y;
 				}
-				canvas.drawLine(oldX, oldY, x, y, mPaint);
-				oldX = x;
-				oldY = y;
+			}
+			else{
+				for (int i = 0; i < paint_buffer_pause.length; i++) {// 有多少画多少
+					int x = i;
+					if ((paint_buffer_pause[i]/* + total_y/2*/) < start_y) {
+						paint_buffer_pause[i] = start_y;
+					} else if (paint_buffer_pause[i] > (start_y+total_y)) {
+						paint_buffer_pause[i] = (start_y+total_y);
+					}
+					y = ((paint_buffer_pause[i] - start_y) * max_y) / total_y;
+					y = max_y - y /*- max_y/2*/;
+					if (oldX == 0) {
+						oldY = y;
+					}
+					canvas.drawLine(oldX, oldY, x, y, mPaint);
+					oldX = x;
+					oldY = y;
+				}
 			}
 			sfv.getHolder().unlockCanvasAndPost(canvas);// 解锁画布，提交画好的图像z
 		}
+	}
+	/*
+	 * 将指定的波形段保存到SD卡
+	 */
+	public void save(int[] data, String file_name){
+		/*建立文件夹*/
+		File save_folder = new File(Environment.getExternalStorageDirectory()+"/EXG_DATA/save");
+		if(!save_folder.exists())
+			save_folder.mkdir();
+		/*建立文件*/
+		File file = new File(Environment.getExternalStorageDirectory()+"/EXG_DATA/save/"+file_name);
+		if(!file.exists())
+			try {
+				file.createNewFile();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		/*保存数据*/
+		FileOutputStream output = null;
+		try {
+			output = new FileOutputStream(file);
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		byte[] buffer = new byte[data.length*2];
+		int j = 0;
+		for(int i=0; i<data.length; i++){
+			buffer[j++] = (byte)data[i];
+			buffer[j++] = (byte)(data[i]>>8);
+		}
+		try {
+			output.write(buffer);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		try {
+			output.close();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	/*
+	 * 读取指定文件名的波形
+	 */
+	public void load(String file_name){
+		/*寻找文件*/
+		File file = new File(Environment.getExternalStorageDirectory()+"/EXG_DATA/save/"+file_name);
+		if(!file.exists())
+			try {
+				file.createNewFile();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		/*读取数据*/
+		FileInputStream input = null;
+		try{
+			input = new FileInputStream(file);
+		} catch(IOException e){
+			e.printStackTrace();
+		}
+		byte[] buffer = new byte[(int) file.length()];
+		try {
+			input.read(buffer);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		int[] data = new int[buffer.length/2];
+		for(int i=0; i<data.length; i++){
+			data[i] = (int) ((buffer[i*2] & 0xff) | ((buffer[i*2+1] & 0xff) << 8));
+		}
+		paint_buffer_pause = data;
 	}
 }

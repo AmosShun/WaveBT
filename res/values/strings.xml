@@ -3,5 +3,7 @@
 
     <string name="hello">Hello World, WaveActivity!</string>
     <string name="app_name">WaveBT</string>
+    <string name="save">保存当前波形</string>
+    <string name="load">读取波形</string>
 
 </resources>

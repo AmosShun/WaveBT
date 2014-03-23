@@ -1,12 +1,26 @@
 package com.google.wave_bt;
 
+
+
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
+
+
+
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.SurfaceView;
 import android.view.View;
@@ -71,7 +85,8 @@ public class WaveActivity extends Activity {
 		
 		// 画板和画笔
 		sfv = (SurfaceView) this.findViewById(R.id.SurfaceView01);
-		sfv.setOnTouchListener(new TouchEvent());
+		//sfv.setOnTouchListener(new TouchEvent());
+		sfv.setOnClickListener(new ClickEvent());
 		mPaint = new Paint();
 		mPaint.setColor(Color.GREEN);// 画笔为绿色
 		mPaint.setStrokeWidth(1);// 设置画笔粗细
@@ -102,7 +117,28 @@ public class WaveActivity extends Activity {
 			}
 		};
 	}
-	
+	/*菜单*/
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		// TODO Auto-generated method stub
+	    MenuInflater inflater = getMenuInflater();
+	    inflater.inflate(R.menu.main, menu);
+		return super.onCreateOptionsMenu(menu);
+	}
+	/*菜单按钮*/
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		// TODO Auto-generated method stub
+		switch(item.getItemId()){
+		case R.id.save:
+			SaveDialog();
+			break;
+		case R.id.load:
+			LoadDialog();
+			break;
+		}
+		return super.onOptionsItemSelected(item);
+	}	
 	// Method 
 	static public void updateMessage (String msg) {
 		
@@ -145,6 +181,13 @@ public class WaveActivity extends Activity {
 				}
 			//} else if (v == btnMotion) {
 			//	clsOscilloscope.motion_toggle();
+			}else if (v == sfv){
+				/*点击SurfaceView,冻结屏幕*/
+				if(clsOscilloscope.PAUSE == false){
+					clsOscilloscope.PAUSE = true;
+				}
+				else
+					clsOscilloscope.PAUSE = false;
 			}
 		}
 	}
@@ -161,5 +204,54 @@ public class WaveActivity extends Activity {
 			return true;
 		}
 
+	}
+	
+	/*
+	 * 保存波形的对话框
+	 */
+	public void SaveDialog(){
+		AlertDialog.Builder builder = new AlertDialog.Builder(WaveActivity.this);
+		//设置对话框布局文件
+		View view = View.inflate(this,R.layout.save_dialog,null);
+		builder.setView(view);
+		final EditText edit_text = (EditText)view.findViewById(R.id.filename);
+		//按键
+        builder.setPositiveButton("保存", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int id) {
+                String file_name = edit_text.getText().toString();
+                clsOscilloscope.save(clsOscilloscope.paint_buffer_pause,file_name);
+            }
+        });
+
+		
+
+		builder.create().show();
+	}
+	/*
+	 * 读取波形的对话框
+	 */
+	public void LoadDialog(){
+		/*获得文件列表*/
+		File root = new File(Environment.getExternalStorageDirectory()+"/EXG_DATA/save");
+		List<String> items = new ArrayList<String>();
+		for(File file : root.listFiles()){
+			items.add(file.getName());
+		}	//得到文件名列表
+		final String[] files = new String[items.size()];	//转成String数组
+		items.toArray(files);
+		/*设置对话框*/
+		AlertDialog.Builder builder = new AlertDialog.Builder(WaveActivity.this);
+		builder.setTitle("选择波形文件");
+		builder.setItems(files, new DialogInterface.OnClickListener(){
+
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+				// TODO Auto-generated method stub
+				clsOscilloscope.load(files[which]);
+			}
+			
+		});
+		builder.create().show();
 	}
 }
