@@ -1,6 +1,7 @@
 package com.google.wave_bt;
+import java.util.ArrayList;
 import java.util.Arrays;
-
+import java.util.List;
 import android.os.Message;
 
 
@@ -26,6 +27,7 @@ public class Derivative {
 	private int RR_intervals_counter;	//RR间期数组的索引
 	private boolean THRESHOLD_INITED;	//阈值初始化完成标志
 	private boolean START;	//开始计算RR间期标志位
+	private Arrhythmia arrhythmia = new Arrhythmia();
 	
 	
 	/*
@@ -217,6 +219,85 @@ public class Derivative {
 		}
 	}
 	
-	
+	public class Arrhythmia{
+		private List<Integer> RR_recent = new ArrayList<Integer>();	//最近8个RR间期
+		private List<Integer> QRS_recent = new ArrayList<Integer>();	//最近8个QRS宽度
+		private int RR_NORMAL = 0;	//RR间期边界
+		private int RR_UP = 0;
+		private int RR_DOWN = 0;
+		private int QRS_NORMAL = 0;	//QRS宽度边界
+		private int QRS_UP = 0;
+		private int QRS_DOWN = 0;
+		private boolean ABNORMAL = false;	//心律异常标志位
+		private int abnormal_count = 0;		//计数器
+		private boolean START = false;		//初始化完成标志
+		
+		private void process(int RR_interval, int QRS_duration)
+		{
+			if(!START)
+				init(RR_interval, QRS_duration);	//初始化
+			else{
+				if( RR_interval < RR_UP && RR_interval > RR_DOWN){
+					if(ABNORMAL){
+						abnormal_count++;
+						save();
+					}
+					ABNORMAL = false;
+					RR_recent.add(RR_interval);
+					RR_recent.remove(0);
+					QRS_recent.add(QRS_duration);
+					QRS_recent.remove(0);
+					RR_NORMAL = mean(RR_recent);
+					QRS_NORMAL = mean(QRS_recent);
+					RR_UP = RR_NORMAL * 114 / 100;
+					RR_DOWN = RR_NORMAL * 86 / 100;
+					QRS_UP = QRS_NORMAL * 120 / 100;
+					QRS_DOWN = QRS_NORMAL * 80 / 100;
+				}
+				else{
+					ABNORMAL = true;
+				}
+			}
+		}
+		
+		private int mean(List<Integer> list){
+			int sum = 0;
+			for(int i=0; i<8; i++){
+				sum += list.get(i);
+			}
+			return sum/8;
+		}
+		
+		private void init(int RR_interval, int QRS_duration){
+			RR_recent.add(RR_interval);
+			QRS_recent.add(QRS_duration);
+			if(RR_recent.size() == 8){
+				START = true;
+				int RRsum = 0;
+				int QRSsum = 0;
+				for(int i=0; i<8; i++){
+					RRsum += RR_recent.get(i);
+					QRSsum += QRS_recent.get(i);
+				}
+				RR_NORMAL = RRsum / 8;
+				RR_UP = RR_NORMAL * 114 / 100;
+				RR_DOWN = RR_NORMAL * 86 / 100;
+				QRS_NORMAL = QRSsum / 8;
+				QRS_UP = QRS_NORMAL * 120 / 100;
+				QRS_DOWN = QRS_NORMAL * 80 / 100;
+			}
+		}
+		
+		/*
+		 * 通知WaveActivity保存
+		 */
+		private void save(){
+			Message msg = WaveActivity.handler.obtainMessage();
+			msg.what = 5;
+			WaveActivity.handler.sendMessage(msg);
+		}
+		
+	}	
 
 }
+

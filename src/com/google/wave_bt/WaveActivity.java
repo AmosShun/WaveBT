@@ -40,7 +40,8 @@ public class WaveActivity extends Activity {
 	//private Button btnMotion;
 	private EditText editSR;
 	//private EditText recvMsg;
-	private SurfaceView sfv;
+	private SurfaceView sfv;	//ECG画布
+	private SurfaceView sfv_acc;	//Acc画布
 	//private int refresh_stage = 0;
 	private TextView RR_interval;
 	private TextView heart_rate;
@@ -55,7 +56,7 @@ public class WaveActivity extends Activity {
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.main2);
+		setContentView(R.layout.activity_main);
 		
 		// 按键
 		btnUp = (Button) this.findViewById(R.id.btnUp);
@@ -68,11 +69,11 @@ public class WaveActivity extends Activity {
 		btnx.setOnClickListener(new ClickEvent());
 		btnTG = (Button) this.findViewById(R.id.btnTG);
 		btnTG.setOnClickListener(new ClickEvent());
-		btnSampleRate = (Button) this.findViewById(R.id.btnSampleRate);
-		btnSampleRate.setOnClickListener(new ClickEvent());
+		//btnSampleRate = (Button) this.findViewById(R.id.btnSampleRate);
+		//btnSampleRate.setOnClickListener(new ClickEvent());
 		//btnMotion = (Button) this.findViewById(R.id.btnMotion);
 		//btnMotion.setOnClickListener(new ClickEvent());
-		editSR = (EditText) this.findViewById(R.id.editSR);
+		//editSR = (EditText) this.findViewById(R.id.editSR);
 		//recvMsg = (EditText) this.findViewById(R.id.recvMsg);
 		
 		//参数显示
@@ -87,6 +88,7 @@ public class WaveActivity extends Activity {
 		sfv = (SurfaceView) this.findViewById(R.id.SurfaceView01);
 		//sfv.setOnTouchListener(new TouchEvent());
 		sfv.setOnClickListener(new ClickEvent());
+		sfv_acc = (SurfaceView) this.findViewById(R.id.SurfaceView02);
 		mPaint = new Paint();
 		mPaint.setColor(Color.GREEN);// 画笔为绿色
 		mPaint.setStrokeWidth(1);// 设置画笔粗细
@@ -94,7 +96,7 @@ public class WaveActivity extends Activity {
 		clsOscilloscope.initOscilloscope();
 
 		/* start ASAP */		
-		clsOscilloscope.Start(sfv, mPaint);
+		clsOscilloscope.Start(sfv,sfv_acc, mPaint);
 		
 		handler = new Handler() {
 			@Override

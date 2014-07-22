@@ -2,7 +2,53 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
-    android:orientation="vertical" >
+    android:orientation="vertical"
+    android:padding="10dip" >
+	<TextView
+	    android:layout_width="fill_parent"
+	    android:layout_height="wrap_content"
+	    android:text="心电图："/>
+    <SurfaceView
+        android:id="@+id/SurfaceView01"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_weight="1" />
+	<TextView 
+	    android:layout_width="fill_parent"
+	    android:layout_height="wrap_content"
+	    android:text="加速度："/>
+    <SurfaceView
+        android:id="@+id/SurfaceView02"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_weight="1" />
+
+    <TextView
+        android:id="@+id/heartRate"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:text="心率：初始化..."
+        android:textSize="8pt"
+        android:textStyle="italic" />
+
+    <TextView
+        android:id="@+id/rR"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:text="RR间期：初始化..."
+        android:textSize="8pt"
+        android:textStyle="italic" />
+
+    <TextView
+        android:id="@+id/qRs"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:text="QRS间期：初始化..."
+        android:textSize="8pt"
+        android:textStyle="italic" />
+
 
 
     <LinearLayout
@@ -11,139 +57,48 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal" >
 
-
-
         <Button
             android:id="@+id/btnUp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="0.01"
-            android:text="Up" 
-            android:textColor="#0000aa"
-            android:background="@android:drawable/btn_default_small"/>
-
+            android:background="@android:drawable/btn_default_small"
+            android:text="Up" />
 
         <Button
             android:id="@+id/btnDown"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="0.005"
-            android:text="Down"
-            android:textColor="#0000aa"
-            android:background="@android:drawable/btn_default_small" />
-
+            android:background="@android:drawable/btn_default_small"
+            android:text="Down" />
 
         <Button
             android:id="@+id/btnX"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="0.01"
-            android:text="X" 
-            android:background="@android:drawable/btn_default_small"/>
-
+            android:background="@android:drawable/btn_default_small"
+            android:text="X" />
 
         <Button
             android:id="@+id/btnx"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="0.01"
-            android:text="x" 
-            android:background="@android:drawable/btn_default_small"/>
-
+            android:background="@android:drawable/btn_default_small"
+            android:text="x" />
 
         <Button
             android:id="@+id/btnTG"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="0.01"
-            android:text="T"
-            android:background="@android:drawable/btn_default_small" />
-
-    </LinearLayout>
-
-    <LinearLayout
-        android:id="@+id/LinearLayout01"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal" >
-
-        <Button
-            android:id="@+id/btnSampleRate"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginRight="3dip"
             android:background="@android:drawable/btn_default_small"
-            android:text="Sample/Sec" />
-
-        <EditText
-            android:id="@+id/editSR"
-            android:layout_width="84dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="0.34"
-            android:background="@android:drawable/editbox_background"
-            android:inputType="text" >
-        </EditText>
-
-        <RadioGroup
-            android:id="@+id/gender"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal" >
-
-            <RadioButton
-                android:id="@+id/female"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="F" />
-
-            <RadioButton
-                android:id="@+id/male"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="M" />
-        </RadioGroup>
-
-        <requestFocus />
+            android:text="T" />
     </LinearLayout>
-
-    <TableRow 
-    		android:id="@+id/showDatas"
-    		android:layout_width="fill_parent"
-    		android:layout_height="wrap_content">
-    	<TextView
-    	    android:id="@+id/heartRate"
-   	   		android:layout_width="fill_parent"
-       		android:layout_height="wrap_content"
-       		android:layout_weight="1"
-        	android:text="5" 
-         	android:gravity="center_vertical"
-        	android:background="#aa6655"  />
-        <TextView
-            android:id="@+id/rR"
-        	android:layout_width="fill_parent"
-        	android:layout_height="wrap_content"
-        	android:layout_weight="1"
-        	android:text="6" 
-        	android:gravity="center_vertical"
-        	android:background="#6655aa" />
-        <TextView
-            android:id="@+id/qRs"
-       		android:layout_width="fill_parent"
-        	android:layout_height="wrap_content"
-        	android:layout_weight="1"
-        	android:text="7" 
-        	android:gravity="center_vertical"
-       		android:background="#55aa66" />
-   </TableRow>
-
-    <SurfaceView
-        android:id="@+id/SurfaceView01"
-        android:layout_width="fill_parent"
-        android:layout_height="fill_parent" >
-    </SurfaceView>
 
 </LinearLayout>
-
 
 
 
